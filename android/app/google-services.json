@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "474212547216",
+    "project_id": "chat-wave-eea40",
+    "storage_bucket": "chat-wave-eea40.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:474212547216:android:00a742e187a4f455e47615",
+        "android_client_info": {
+          "package_name": "com.example.chat_wave"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyADxDSCpJig2nwzSmpaL9rSL8Jo82fbKTU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
