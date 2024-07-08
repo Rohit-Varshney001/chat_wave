@@ -40,7 +40,7 @@ class _ChatPageState extends State<ChatPage> {
 
     currentUser = ChatUser(
         id: widget.currentUserProfile.uid!,
-        firstName: widget.currentUserProfile.name);
+        firstName: widget.currentUserProfile.name!);
 
     otherUSer = ChatUser(
       id: widget.chatUser.uid!,
@@ -98,24 +98,38 @@ class _ChatPageState extends State<ChatPage> {
 
   Widget _buildUI() {
     return StreamBuilder(
-        stream: _databaseService.getChatData(currentUser!.id, otherUSer!.id),
-        builder: (context, snapshots) {
+      stream: _databaseService.getChatData(currentUser!.id, otherUSer!.id),
+      builder: (context, snapshots) {
+        if (snapshots.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshots.hasError) {
+          return Center(child: Text('Error: ${snapshots.error}'));
+        } else if (!snapshots.hasData || snapshots.data == null) {
+          return Center(child: Text('No data available'));
+        } else {
           Chat? chat = snapshots.data!.data();
           List<ChatMessage> messages = [];
           if (chat != null && chat.messages != null) {
             messages = _generateChatMessagesList(chat.messages!);
           }
           return DashChat(
-              messageOptions: const MessageOptions(
-                  showOtherUsersAvatar: true, showTime: true),
-              inputOptions: InputOptions(alwaysShowSend: true, trailing: [
-                _mediaMessageButton(),
-              ]),
-              currentUser: currentUser!,
-              onSend: _sendMessage,
-              messages: messages);
-        });
+            messageOptions: const MessageOptions(
+              showOtherUsersAvatar: true,
+              showTime: true,
+            ),
+            inputOptions: InputOptions(
+              alwaysShowSend: true,
+              trailing: [_mediaMessageButton()],
+            ),
+            currentUser: currentUser!,
+            onSend: _sendMessage,
+            messages: messages,
+          );
+        }
+      },
+    );
   }
+
 
   Future<void> _sendMessage(ChatMessage chatMessage) async {
     if (chatMessage.medias?.isNotEmpty ?? false) {

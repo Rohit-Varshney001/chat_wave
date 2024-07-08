@@ -50,6 +50,7 @@ class _HomePageState extends State<HomePage> {
         stream: _databaseService.getUserProfiles(),
         builder: (context, snapshots) {
           if (snapshots.hasError) {
+            print(snapshots.error);
             return const Center(
               child: Text("Unable to load data"),
             );
@@ -63,19 +64,46 @@ class _HomePageState extends State<HomePage> {
                   padding: EdgeInsets.symmetric(vertical: 10.0),
                   child: ChatTile(
                       userProfile: user,
-                      onTap: () async{
-                        final chatExists = await _databaseService.checkChatExists(myId, user.uid!);
+                      onTap: () async {
+                        // Show a loading indicator while performing asynchronous operations
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (BuildContext context) {
+                            return Center(child: CircularProgressIndicator());
+                          },
+                        );
 
-                        if(!chatExists){
+                        try {
+                          final chatExists = await _databaseService.checkChatExists(myId, user.uid!);
+
+                          if (!chatExists) {
                             await _databaseService.createNewChat(myId, user.uid!);
+                          }
+
+                          UserProfile currUserLogin = (await _databaseService.getCurrentUserProfile(myId))!;
+
+                          // Close the loading indicator before navigating
+                          Navigator.pop(context);
+
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ChatPage(
+                                chatUser: user,
+                                currentUserProfile: currUserLogin,
+                              ),
+                            ),
+                          );
+                        } catch (e) {
+                          // Handle errors if needed
+                          Navigator.pop(context); // Close the loading indicator in case of an error
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('An error occurred: $e')),
+                          );
                         }
-
-                        UserProfile currUserLogin = (await _databaseService.getCurrentUserProfile(myId))!;
-
-
-                        Navigator.push(context, MaterialPageRoute(builder: (context)=>ChatPage(chatUser: user, currentUserProfile: currUserLogin,),));
-
                       }
+
                   ),
                 );
               },

@@ -55,6 +55,8 @@ dependencies:
   url_launcher: ^6.0.20
   firebase_messaging: ^14.9.3
   firebase_performance: ^0.9.4+6
+  zego_uikit_signaling_plugin: ^2.7.12
+  zego_uikit_prebuilt_call: ^4.11.8
 
 
 
