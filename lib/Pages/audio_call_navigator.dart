@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:chat_wave/config/config.dart';
 import 'package:flutter/material.dart';
 import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 
@@ -19,8 +20,8 @@ class _AudioCallPageState extends State<AudioCallPage> {
   Widget build(BuildContext context) {
     bool useFirstImage = true;
     return ZegoUIKitPrebuiltCall(
-      appID: 1038008585, // Fill in the appID that you get from ZEGOCLOUD Admin Console.
-      appSign: "96157939309e1efd667872f76cc1b2cc01068183bf4a35fffd38f977c10ff942", // Fill in the appSign that you get from ZEGOCLOUD Admin Console.
+      appID: Config.appID, // Fill in the appID that you get from ZEGOCLOUD Admin Console.
+      appSign: Config.appSign, // Fill in the appSign that you get from ZEGOCLOUD Admin Console.
       userID: widget.userId,
       userName: 'User: ${widget.userId}',
       callID: widget.callID,
