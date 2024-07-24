@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:chat_wave/Models/user_profile.dart';
+import 'package:chat_wave/Pages/added_users_page.dart';
 import 'package:chat_wave/Services/database_service.dart';
 import 'package:chat_wave/Services/storage_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -108,7 +109,7 @@ class _SignUp_pageState extends State<SignUp_page> {
 
               if(downloadUrl != null){
                 try{
-                  await _databaseService.createUserProfile(userProfile: UserProfile(uid: id, name: username, pfpURL: downloadUrl));
+                  await _databaseService.createUserProfile(userProfile: UserProfile(uid: id, name: username, pfpURL: downloadUrl, status: null));
                   currentId = id;
                 }catch (e) {
                   MotionToast.info(
@@ -124,7 +125,7 @@ class _SignUp_pageState extends State<SignUp_page> {
               }
               }
 
-              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomePage()));
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => AddedUsersPage(myId: currentId)));
               tempFile.delete();
               print("account created successfully");
               print('download url:$downloadUrl');

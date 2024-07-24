@@ -1,4 +1,5 @@
 
+import 'package:chat_wave/Pages/added_users_page.dart';
 import 'package:chat_wave/Pages/home_page.dart';
 import 'package:chat_wave/Pages/sign_up_page.dart';
 import 'package:flutter/material.dart';
@@ -41,7 +42,7 @@ class _LoginPageState extends State<LoginPage> {
           _isLoading = true;
         });
         userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password).then((value) async {
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomePage()));
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => AddedUsersPage(myId: currUID)));
           currUID = value.user!.uid;
 
 

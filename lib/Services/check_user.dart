@@ -1,4 +1,5 @@
 import 'package:chat_wave/Models/user_profile.dart';
+import 'package:chat_wave/Pages/added_users_page.dart';
 import 'package:chat_wave/Pages/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -38,7 +39,7 @@ class _CheckUserState extends State<CheckUser> {
 
 
     if (user != null) {
-      _widgetToDisplay = HomePage();
+      _widgetToDisplay = AddedUsersPage(myId: currentID2);
     } else {
       _widgetToDisplay = LoginPage();
       setState(() {}); // Trigger a rebuild to display the correct widget
