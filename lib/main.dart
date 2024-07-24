@@ -3,18 +3,16 @@ import 'package:chat_wave/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-
 void main() async{
+
   await setup();
-  runApp(const MyApp());
+  runApp( MyApp());
 }
 
 Future<void> setup() async{
   WidgetsFlutterBinding.ensureInitialized();
   await setUpFirebase();
   await registerServices();
-  runApp(const MyApp());
-
 }
 
 class MyApp extends StatelessWidget {

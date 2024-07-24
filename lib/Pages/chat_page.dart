@@ -1,7 +1,11 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat_wave/Models/messages.dart';
 import 'package:chat_wave/Models/user_profile.dart';
+import 'package:chat_wave/Pages/added_users_page.dart';
+import 'package:chat_wave/Pages/audio_call_navigator.dart';
+import 'package:chat_wave/Pages/call_navigator.dart';
 import 'package:chat_wave/Pages/sign_up_page.dart';
 import 'package:chat_wave/Services/database_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -28,6 +32,7 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   var ID = currUID ?? currentId ?? currentID2;
+  String userStatus = "Offline";
   ChatUser? currentUser, otherUSer;
   final ImagePicker picker = ImagePicker();
   final DatabaseService _databaseService = DatabaseService();
@@ -56,7 +61,12 @@ class _ChatPageState extends State<ChatPage> {
         leadingWidth: 100, // Set a fixed width for the leading section
         leading: Row(
           children: [
-            BackButton(color: Colors.white,),
+            BackButton(
+              onPressed: (){
+                Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>AddedUsersPage(myId: ID)));
+              },
+              color: Colors.white,
+            ),
             GestureDetector(
               onTap: () {
                 Navigator.push(
@@ -72,7 +82,7 @@ class _ChatPageState extends State<ChatPage> {
               child: CircleAvatar(
                 radius: 20.0, // Set the desired radius here
                 backgroundImage: widget.chatUser.pfpURL != null
-                    ? NetworkImage(widget.chatUser.pfpURL!)
+                    ? CachedNetworkImageProvider(widget.chatUser.pfpURL!)
                     : AssetImage('assets/images/blank.png') as ImageProvider,
                 onBackgroundImageError: (exception, stackTrace) {
                   print(
@@ -82,13 +92,83 @@ class _ChatPageState extends State<ChatPage> {
             ),
           ],
         ),
-        title: Text(
-          widget.chatUser.name!,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              widget.chatUser.name!,
+              overflow: TextOverflow.ellipsis,
+              style:
+                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            ),
+            StreamBuilder(
+                stream: _databaseService.getStatus(otherUSer!.id),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Text('....',
+                        style: TextStyle(
+                            color: Colors.white.withOpacity(0.7),
+                            fontSize: 12));
+                  } else {
+                    return Text(
+                      snapshot.data!.status!.toString(),
+                      style: TextStyle(
+                        color: snapshot.data!.status!.toString() == 'Online'
+                            ? Colors.green
+                            : Colors.white.withOpacity(0.7),
+                        fontSize: 12,
+                      ),
+                    );
+                  }
+                })
+          ],
         ),
-        centerTitle: true,
         backgroundColor: Theme.of(context).colorScheme.primary,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: IconButton(
+                onPressed: () async {
+                  _databaseService.callAction(otherUSer!.id, currentUser!.id, false);
+                  String callId = _databaseService.GenerateChatId(
+                      uid1: currentUser!.id, uid2: otherUSer!.id);
+                  await Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => AudioCallPage(
+                            callID: callId,
+                            userId: currentUser!.id,
+                            imageURL1: widget.currentUserProfile.pfpURL!,
+                            imageURL2: widget.chatUser.pfpURL!,
+                          )
+                  ));
+                },
+                icon: Icon(
+                  Icons.call,
+                  color: Colors.white,
+                )),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: IconButton(
+                onPressed: () async {
+                  _databaseService.callAction(otherUSer!.id, currentUser!.id, true);
+                  String callId = _databaseService.GenerateChatId(
+                      uid1: currentUser!.id, uid2: otherUSer!.id);
+                  print("callid = "+callId);
+                  await Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => VideoCallPage(
+                        callID: callId,
+                        userId: currentUser!.id,
+                        imageURL1: widget.currentUserProfile.pfpURL!,
+                        imageURL2: widget.chatUser.pfpURL!,
+                      )
+                  ));
+                },
+                icon: Icon(
+                  Icons.videocam,
+                  color: Colors.white,
+                )),
+          ),
+        ],
       ),
       body: Center(
         child: _buildUI(),
@@ -129,7 +209,6 @@ class _ChatPageState extends State<ChatPage> {
       },
     );
   }
-
 
   Future<void> _sendMessage(ChatMessage chatMessage) async {
     if (chatMessage.medias?.isNotEmpty ?? false) {
